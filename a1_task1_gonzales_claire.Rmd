@@ -1,0 +1,13 @@
+---
+title: 'Task 1: Data wrangling & visualization (Sierra amphibians)'
+author: 'By: Claire Gonzales'
+date: "1/24/2022"
+output: 
+  html_document: 
+    theme: lumen
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+```
+
