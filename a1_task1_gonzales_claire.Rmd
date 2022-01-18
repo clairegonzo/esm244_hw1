@@ -7,7 +7,69 @@ output:
     theme: lumen
 ---
 
+### Project Overview
+
+
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+
+library(tidyverse)
+library(here)
+library(cowplot)
+library(patchwork)
+library(lubridate)
+```
+
+```{r}
+sierra_amph <- read_csv(here("data", "sierra_amphibians.csv"))
+
+```
+
+### Data Wrangling
+
+#### Dataset 1
+
+Creating a subset of data to demonstrate the total mountain yellow-legged frog (Rana muscosa) count each year across all water bodies, by life stage excluding the ‘EggMass’ level.
+
+```{r}
+ramu_sub <- sierra_amph %>% 
+  filter(amphibian_species == "RAMU") %>% 
+  filter(amphibian_life_stage %in% c("Tadpole", "Adult", "SubAdult")) %>% 
+  mutate(survey_date = mdy(survey_date)) %>% #transform date from myd format to YYYY-MM-DD format
+  mutate(year = year(survey_date)) %>% 
+  group_by(year, amphibian_life_stage) %>% # group by year
+  summarize(count = sum(amphibian_number))
+```
+
+#### Dataset 2
+
+Create a second dataset of total counts (over all years of the study) of combined adult and subadult endangered mountain yellow-legged frogs (Rana muscosa) observed in the 5 lakes with the greatest total observed counts.
+
+```{r}
+ramu_top_lakes <- sierra_amph %>% 
+  filter(amphibian_species == "RAMU") %>% 
+  filter(amphibian_life_stage %in% c("Adult", "SubAdult")) %>% 
+  mutate(survey_date = mdy(survey_date)) %>% #transform date from myd format to YYYY-MM-DD format
+  mutate(year = year(survey_date)) %>% 
+  group_by(year, lake_id) %>% 
+  summarize(count = sum(amphibian_number)) %>% 
+  arrange(lake_id)
+```
+
+
+### Data Visualization
+
+A graph of total mountain yellow-legged frog (Rana muscosa) count each year across all water bodies, by life stage excluding the ‘EggMass’ level. In other words, you should find the total number of adult, subadult, and tadpole yellow-legged frogs observed in the entire study region by life stage and year, but you will not use the lake ID or amphibian_location in your analyses as additional grouping variables. Hint: Convert the date to a date with the {lubridate} package, then pull just the year using the lubridate::year() function...then you can group by year to get counts.
+
+
+```{r}
+ggplot(data = ramu_sub, aes(x = year, y = count)) +
+  geom_col(stat = "identity", aes(fill = amphibian_life_stage)) +
+  labs(x = "Year",
+       y = "Count",
+       title = "Count of mountain yellow-legged frogs (R. muscosa), by year and life stage",
+       fill = "Life stage") +
+  coord_flip() +
+  theme_minimal()
 ```
 
