@@ -22,6 +22,7 @@ library(here)
 library(cowplot)
 library(patchwork)
 library(lubridate)
+library(paletteer)
 ```
 
 ```{r}
@@ -56,28 +57,51 @@ ramu_top_lakes <- sierra_amph %>%
   filter(amphibian_life_stage %in% c("Adult", "SubAdult")) %>% 
   mutate(survey_date = mdy(survey_date)) %>% #transform date from myd format to YYYY-MM-DD format
   mutate(year = year(survey_date)) %>% 
-  group_by(year, lake_id) %>% 
+  group_by(lake_id) %>% 
   summarize(count = sum(amphibian_number)) %>% 
-  arrange(lake_id)
+  arrange(-count) %>% 
+  mutate(lake_id = factor(lake_id, levels = lake_id)) %>% 
+  slice_max(count, n = 5)
+  
 ```
 
 
 ### Data Visualization
 
+#### Visualization 1
+
 A graph of total mountain yellow-legged frog (Rana muscosa) count each year across all water bodies, by life stage excluding the ‘EggMass’ level. In other words, you should find the total number of adult, subadult, and tadpole yellow-legged frogs observed in the entire study region by life stage and year, but you will not use the lake ID or amphibian_location in your analyses as additional grouping variables. Hint: Convert the date to a date with the {lubridate} package, then pull just the year using the lubridate::year() function...then you can group by year to get counts.
 
 
 ```{r}
-ggplot(data = ramu_sub, aes(x = year, y = count)) +
+plot1 <- ggplot(data = ramu_sub, aes(x = year, y = count)) +
   geom_col(stat = "identity", aes(fill = amphibian_life_stage)) +
   labs(x = "Year",
        y = "Count",
-       title = "Count of mountain yellow-legged frogs (R. muscosa), by year and life stage",
        fill = "Life stage") +
-  coord_flip() +
-  theme_minimal()
+  theme_minimal() +
+  scale_fill_paletteer_d(palette = "basetheme::minimal") +
+  theme(legend.position='bottom', axis.text.x = element_text(angle = 45))
 ```
 
+#### Visualization 2
+
+```{r}
+plot2 <- ggplot(data = ramu_top_lakes, aes(x = lake_id, y = count, fill = lake_id)) +
+  geom_col() +
+  labs(x = "Lake ID",
+       y = "Count",
+       fill = "Lake ID") +
+  theme_minimal() +
+  scale_fill_paletteer_d(palette = "calecopal::sbchannel") +
+  theme(legend.position= 'none', axis.text.x = element_text(angle = 45))
+```
+
+### Combined Visualization
+
+```{r}
+plot_grid(plot1, plot2, labels = c('A', 'B'), label_size = 12)
+```
 
 
 ### Citations
