@@ -9,9 +9,13 @@ output:
 
 ### Project Overview
 
+(Knapp et al 2020)
+
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+
+# attaching packages
 
 library(tidyverse)
 library(here)
@@ -21,8 +25,9 @@ library(lubridate)
 ```
 
 ```{r}
-sierra_amph <- read_csv(here("data", "sierra_amphibians.csv"))
+# reading in csv data
 
+sierra_amph <- read_csv(here("data", "sierra_amphibians.csv"))
 ```
 
 ### Data Wrangling
@@ -73,3 +78,8 @@ ggplot(data = ramu_sub, aes(x = year, y = count)) +
   theme_minimal()
 ```
 
+
+
+### Citations
+
+Knapp, R.A., C. Pavelka, E.E. Hegeman, and T.C. Smith. 2020. The Sierra Lakes Inventory Project: Non-Native fish and community composition of lakes and ponds in the Sierra Nevada, California ver 2. Environmental Data Initiative. https://doi.org/10.6073/pasta/d835832d7fd00d9e4466e44eea87fab3
