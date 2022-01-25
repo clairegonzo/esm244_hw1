@@ -213,11 +213,6 @@ AIC(mdl1, mdl2)</code></pre>
 <pre><code>##      df      AIC
 ## mdl1  5 618.3868
 ## mdl2  6 615.7016</code></pre>
-<pre class="r"><code># Calculating corrected AIC based on the number of observations
-AICc(mdl1)</code></pre>
-<pre><code>## [1] 619.0251</code></pre>
-<pre class="r"><code>AICc(mdl2)</code></pre>
-<pre><code>## [1] 616.6048</code></pre>
 <pre class="r"><code># Table of corrected AIC values
 aictab(list(mdl1, mdl2))</code></pre>
 <pre><code>## 
@@ -227,6 +222,104 @@ aictab(list(mdl1, mdl2))</code></pre>
 ## Mod2 6 616.60       0.00   0.77   0.77 -301.85
 ## Mod1 5 619.03       2.42   0.23   1.00 -304.19</code></pre>
 <p>Based on these observation, Model 2 has better model fit (AIC = 616.6) compared to that of Model 1 (AIC = 619.03).</p>
+</div>
+<div id="k-fold-cross-validation-of-models" class="section level3">
+<h3>K-fold cross validation of models</h3>
+<pre class="r"><code>folds &lt;- 10
+fold_vec &lt;- rep(1:folds, length.out = nrow(seawater))
+table(fold_vec)</code></pre>
+<pre><code>## fold_vec
+##  1  2  3  4  5  6  7  8  9 10 
+## 10 10 10 10 10 10 10 10 10 10</code></pre>
+<pre class="r"><code>set.seed(42)
+
+seawater_fold &lt;- seawater %&gt;% 
+  mutate(group = sample(fold_vec, size = n(), replace = FALSE))
+
+# first fold
+test_df &lt;- seawater_fold %&gt;% 
+  filter(group == 1)
+train_df &lt;- seawater_fold %&gt;% 
+  filter(group !=1)</code></pre>
+<div id="root-mean-square-error" class="section level4">
+<h4>Root-mean-square error</h4>
+<pre class="r"><code># go in reverse order of these operations. Find error, square it, find average, then take the square root.
+
+calc_rmse &lt;- function(x,y) {
+  rmse_result &lt;- (x-y)^2 %&gt;% 
+    mean() %&gt;% 
+    sqrt()
+  return(rmse_result)
+}</code></pre>
+<pre class="r"><code># Using the training dataset above, create 2 linear regression models based on formula/function calc_rmse
+training_mdl1 &lt;- lm(f1, data = train_df)
+training_mdl2 &lt;- lm(f2, data = train_df)
+
+#predict on test data
+
+predict_test &lt;- test_df %&gt;% 
+  mutate(model1 = predict(training_mdl1, test_df),
+         model2 = predict(training_mdl2, test_df))
+
+rmse_predict_test &lt;- predict_test %&gt;% 
+  summarize(rmse_mdl1 = calc_rmse(model1, o2sat),
+            rmse_mdl2 = calc_rmse(model2, o2sat))</code></pre>
+<pre class="r"><code># calculating over all folds and taking the average
+
+rmse_df &lt;- data.frame()
+
+for(i in 1:folds) {
+  kfold_test_df &lt;- seawater_fold %&gt;% 
+    filter(group == 1)
+  kfold_train_df &lt;- seawater_fold %&gt;% 
+    filter(group !=i)
+  
+  kfold_mdl1 &lt;- lm(f1, data = kfold_train_df)
+  kfold_mdl2 &lt;- lm(f2, data = kfold_train_df)
+  
+  kfold_pred_df &lt;- kfold_test_df %&gt;% 
+    mutate(mdl1 = predict(kfold_mdl1, kfold_test_df),
+           mdl2 = predict(kfold_mdl2, .))
+  kfold_rmse &lt;- kfold_pred_df %&gt;% 
+    summarize(rmse_mdl1 = calc_rmse(mdl1, o2sat),
+              rmse_mdl2 = calc_rmse(mdl2, o2sat))
+  
+  rmse_df &lt;- bind_rows(rmse_df, kfold_rmse)
+  
+}
+
+rmse_df_table &lt;- rmse_df %&gt;% summarize(mean_rmse_mdl1 = mean(rmse_mdl1),
+                      mean_rmse_mdl2 = mean(rmse_mdl2))</code></pre>
+<p>The root-mean-square-error (rmse) of Model 1 (rmse = 8.6361593) is sloghtly smaller than that of Model 2 (rmse = 9.0785268), making Model 1 the model of best fit following this assessment.</p>
+<pre class="r"><code>final_mdl &lt;- lm(f1, data = seawater)
+summary(final_mdl)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = f1, data = seawater)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -25.223  -2.349  -0.233   2.494  21.313 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 195.7345    93.9380   2.084   0.0398 *  
+## t_deg_c      -0.4700     0.3902  -1.205   0.2313    
+## salinity     -2.1350     2.9344  -0.728   0.4686    
+## po4u_m      -38.4778     2.5207 -15.265   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 5.173 on 96 degrees of freedom
+## Multiple R-squared:  0.9554, Adjusted R-squared:  0.954 
+## F-statistic: 685.5 on 3 and 96 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>Our final model: <span class="math display">\[
+\begin{aligned}
+\operatorname{o2sat} &amp;= \alpha + \beta_{1}(\operatorname{t\_deg\_c}) + \beta_{2}(\operatorname{salinity}) + \beta_{3}(\operatorname{po4u\_m})\ + \\
+&amp;\quad \epsilon
+\end{aligned}
+\]</span></p>
+</div>
 </div>
 <div id="citations" class="section level3">
 <h3>Citations</h3>
