@@ -9,8 +9,7 @@ output:
 
 ### Project Overview
 
-(Knapp et al 2020)
-
+This report explores the abundance data of mountain yellow-legged frog (Rana muscosa), as observed from the Sierra Lakes Inventory Project between the years 1995-2002 in the Sierra Nevada region of California. (Knapp et al 2020)
 
 ```{r setup, include=TRUE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
@@ -70,9 +69,6 @@ ramu_top_lakes <- sierra_amph %>%
 
 #### Visualization 1
 
-A graph of total mountain yellow-legged frog (Rana muscosa) count each year across all water bodies, by life stage excluding the ‘EggMass’ level. In other words, you should find the total number of adult, subadult, and tadpole yellow-legged frogs observed in the entire study region by life stage and year, but you will not use the lake ID or amphibian_location in your analyses as additional grouping variables. Hint: Convert the date to a date with the {lubridate} package, then pull just the year using the lubridate::year() function...then you can group by year to get counts.
-
-
 ```{r}
 plot1 <- ggplot(data = ramu_sub, aes(x = year, y = count)) +
   geom_col(stat = "identity", aes(fill = amphibian_life_stage)) +
@@ -99,9 +95,13 @@ plot2 <- ggplot(data = ramu_top_lakes, aes(x = lake_id, y = count, fill = lake_i
 
 ### Combined Visualization
 
+Creating one figure with both visualizations.
+
 ```{r}
 plot_grid(plot1, plot2, labels = c('A', 'B'), label_size = 12)
 ```
+
+**Figure 1** Shows the observed abundances of mountain yellow-legged frog (R. muscosa) as recorded by the The Sierra Lakes Inventory Project 1995-2002 (Knapp et al. 2020). *Pane A* reflects the total count of mountain yellow-legged frogs each year across all water bodies, by life stage excluding the ‘EggMass’ level. *Pane B* reflects total counts (over all years of the study) of combined adult and subadult endangered mountain yellow-legged frogs observed in the 5 lakes with the greatest total observed counts.
 
 
 ### Citations
