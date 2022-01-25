@@ -12,7 +12,7 @@ output:
 (Knapp et al 2020)
 
 
-```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+```{r setup, include=TRUE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 
 # attaching packages

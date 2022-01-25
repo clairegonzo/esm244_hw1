@@ -1,0 +1,68 @@
+---
+title: 'Task 2: Model selection'
+author: 'By: Claire Gonzales'
+date: "1/24/2022"
+output: 
+  html_document: 
+    theme: lumen
+---
+
+### Project Overview 
+
+
+```{r setup, include= TRUE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+
+# attach packages
+
+library(tidyverse)
+library(here)
+library(lubridate)
+library(AICcmodavg)
+library(equatiomatic)
+```
+
+```{r}
+# reading in csv data
+
+seawater <- read_csv(here("data", "calcofi_seawater_samples.csv")) %>% 
+  drop_na()
+```
+
+### Create 2 models
+
+The two multiple linear regressiong models will address the following:
+
+- oxygen saturation as a function of water temperature, salinity, and phosphate concentration; and
+- oxygen saturation as a function of water temperature, salinity, phosphate concentration, and depth.
+
+```{r}
+# model 1
+mdl1 <- lm(o2sat ~ t_deg_c + salinity + po4u_m, data = seawater)
+
+# model 1 formula
+f1 <- o2sat ~ t_deg_c + salinity + po4u_m
+
+# model 2
+mdl2 <- lm(o2sat ~ t_deg_c + salinity + po4u_m + depth_m, data = seawater)
+
+# model 2 formula
+f2 <- o2sat ~ t_deg_c + salinity + po4u_m + depth_m
+  
+```
+
+### Comparing models with AIC
+
+```{r}
+# Calculating AIC
+AIC(mdl1, mdl2)
+
+# Table of corrected AIC values
+aictab(list(mdl1, mdl2))
+```
+
+Based on these observation, Model 2 has better model fit (AIC = `r round(AICc(mdl2),2)`) compared to that of Model 1 (AIC = `r round(AICc(mdl1),2)`).
+
+### Citations
+
+CalCOFI data are available for use without restriction. Data downloaded from https://calcofi.org/ccdata.html.
