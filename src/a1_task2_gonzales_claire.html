@@ -173,6 +173,8 @@ pre code {
 
 <div id="project-overview" class="section level3">
 <h3>Project Overview</h3>
+<p>This project will use seawater sample data from CalCOFI research cruises to explore physical relationships. Ultimately, this report aims to discern the relationship between oxygen saturation levels and other physical and chemical variables. I will use AIC and cross validation to compare the preformance of two different linear regression models to find the model of best fit.</p>
+<p>(Data: CalCOFI 2021)</p>
 <pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 
 # attach packages
@@ -290,7 +292,11 @@ for(i in 1:folds) {
 
 rmse_df_table &lt;- rmse_df %&gt;% summarize(mean_rmse_mdl1 = mean(rmse_mdl1),
                       mean_rmse_mdl2 = mean(rmse_mdl2))</code></pre>
-<p>The root-mean-square-error (rmse) of Model 1 (rmse = 8.6361593) is sloghtly smaller than that of Model 2 (rmse = 9.0785268), making Model 1 the model of best fit following this assessment.</p>
+</div>
+</div>
+<div id="conclusions" class="section level3">
+<h3>Conclusions</h3>
+<p>The root-mean-square-error (rmse) of Model 1 (rmse = 8.64) is slightly smaller than that of Model 2 (rmse = 9.08), making Model 1 the model of best fit following this assessment. (Data: CalCOFI 2021)</p>
 <pre class="r"><code>final_mdl &lt;- lm(f1, data = seawater)
 summary(final_mdl)</code></pre>
 <pre><code>## 
@@ -319,7 +325,11 @@ summary(final_mdl)</code></pre>
 &amp;\quad \epsilon
 \end{aligned}
 \]</span></p>
-</div>
+<p><span class="math display">\[
+\begin{aligned}
+\operatorname{\widehat{o2sat}} &amp;= 195.73 - 0.47(\operatorname{t\_deg\_c}) - 2.13(\operatorname{salinity}) - 38.48(\operatorname{po4u\_m})
+\end{aligned}
+\]</span></p>
 </div>
 <div id="citations" class="section level3">
 <h3>Citations</h3>

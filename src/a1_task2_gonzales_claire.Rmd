@@ -7,8 +7,9 @@ output:
     theme: lumen
 ---
 
-### Project Overview 
+### Project Overview
 
+This project will use seawater sample data from CalCOFI research cruises to explore physical relationships. Ultimately, this report aims to discern the relationship between oxygen saturation levels and other physical and chemical variables. I will use AIC and cross validation to compare the preformance of two different linear regression models to find the model of best fit. 
 
 (Data: CalCOFI 2021)
 
@@ -144,7 +145,9 @@ rmse_df_table <- rmse_df %>% summarize(mean_rmse_mdl1 = mean(rmse_mdl1),
                       mean_rmse_mdl2 = mean(rmse_mdl2))
 ```
 
-The root-mean-square-error (rmse) of Model 1 (rmse = `r rmse_df_table$mean_rmse_mdl1`) is sloghtly smaller than that of Model 2 (rmse = `r rmse_df_table$mean_rmse_mdl2`), making Model 1 the model of best fit following this assessment. (Data: CalCOFI 2021)
+### Conclusions
+
+The root-mean-square-error (rmse) of Model 1 (rmse = `r round(rmse_df_table$mean_rmse_mdl1, 2)`) is slightly smaller than that of Model 2 (rmse = `r round(rmse_df_table$mean_rmse_mdl2, 2)`), making Model 1 the model of best fit following this assessment. (Data: CalCOFI 2021)
 
 ```{r}
 final_mdl <- lm(f1, data = seawater)
@@ -155,6 +158,7 @@ Our final model:
 `r equatiomatic::extract_eq(final_mdl, wrap = TRUE)`
 
 `r equatiomatic::extract_eq(final_mdl, wrap = TRUE, use_coefs = TRUE)`
+
 
 ### Citations
 
